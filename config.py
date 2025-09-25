@@ -21,6 +21,14 @@ def _getPythonExec() -> str:
     )
 
 
+def _getPytestExec() -> str:
+    return os.path.join(
+        "venv",
+        "Scripts",
+        "pytest" + ".exe" if os.name == "nt" else "",
+    )
+
+
 def createVirtualEnv(force: bool = False) -> None:
     """
     Used for initializing the dev environment which are called each time the config.py is run.
@@ -159,6 +167,13 @@ def main():
         help="List of additional packages to install",
     )
 
+    testParser = subparser.add_parser("test", help="Run the tests")
+    testParser.add_argument(
+        "--filter",
+        type=str,
+        help="Run tests that match the given filter",
+    )
+
     args = parser.parse_args()
 
     createVirtualEnv()
@@ -178,6 +193,19 @@ def main():
         logger.info("Application stopped.")
     elif args.command == "install":
         installPackages(args.packages)
+    elif args.command == "test":
+        pytestExec = _getPytestExec()
+        logger.info("Running tests...")
+        subprocess.run(
+            [
+                pytestExec,
+                "tests" + (f" -k {args.filter}" if args.filter else ""),
+            ],
+            check=True,
+            shell=True,
+            cwd=os.getcwd(),
+        )
+        logger.info("Tests completed.")
 
 
 if __name__ == "__main__":
