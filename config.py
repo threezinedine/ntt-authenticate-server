@@ -164,7 +164,18 @@ def main():
     createVirtualEnv()
 
     if args.command == "run":
+        pythonExec = _getPythonExec()
         logger.info("Running the application...")
+        subprocess.run(
+            [
+                pythonExec,
+                "server.py",
+            ],
+            check=True,
+            shell=True,
+            cwd=os.getcwd(),
+        )
+        logger.info("Application stopped.")
     elif args.command == "install":
         installPackages(args.packages)
 
