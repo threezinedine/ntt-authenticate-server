@@ -1,7 +1,12 @@
 {
 	"folders": [
 		{
-			"path": ".",
+			"name": "server",
+			"path": "server"
+		},
+		{
+			"name": "ntt-authenticate-server",
+			"path": "."
 		}
 	],
 	"settings": {
