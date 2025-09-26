@@ -1,6 +1,7 @@
 import logging
 from typing import AsyncGenerator
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.logger import logger
 from contextlib import asynccontextmanager
 from utils import Env
@@ -24,8 +25,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(lifespan=lifespan)
 
-@app.post("/register", tags=["Authentication"], summary="Register a new user", description="Register a new user with the provided username and password.")
-def register(request: LoginRequest) -> None:
+@app.post("/register", 
+          tags=["Authentication"], 
+          summary="Register a new user", 
+          description="Register a new user with the provided username and password.")
+def register(request: LoginRequest) -> JSONResponse:
     """
     Register a new user.
 
@@ -41,7 +45,7 @@ def register(request: LoginRequest) -> None:
     """
     logger.info(f"Registering user: {request.username}")
     # Here you would add logic to save the user to the database.
-    return 
+    return JSONResponse(status_code=201, content={})
 
 
 if __name__ == "__main__":
