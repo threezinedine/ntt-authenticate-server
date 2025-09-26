@@ -13,19 +13,33 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 
-def _getPythonExec() -> str:
+def _getServerPythonExec() -> str:
     return os.path.join(
-        "venv",
+        _getServerEnvDir(),
         "Scripts",
         "python" + ".exe" if os.name == "nt" else "",
     )
 
 
-def _getPytestExec() -> str:
+def _getServerPytestExec() -> str:
     return os.path.join(
-        "venv",
+        _getServerEnvDir(),
         "Scripts",
         "pytest" + ".exe" if os.name == "nt" else "",
+    )
+
+
+def _getServerDir() -> str:
+    return os.path.join(
+        os.getcwd(),
+        "server",
+    )
+
+
+def _getServerEnvDir() -> str:
+    return os.path.join(
+        _getServerDir(),
+        "venv",
     )
 
 
@@ -40,10 +54,10 @@ def createVirtualEnv(force: bool = False) -> None:
         If True, forces the recreation of the virtual environment even if it already exists. Default is False.
     """
 
-    if os.path.exists("venv"):
+    if os.path.exists(_getServerEnvDir()):
         if force:
             logger.info("Forcing recreation of virtual environment...")
-            shutil.rmtree("venv")
+            shutil.rmtree(_getServerEnvDir())
         else:
             logger.info("Virtual environment already exists.")
             return
@@ -59,15 +73,11 @@ def createVirtualEnv(force: bool = False) -> None:
             ],
             check=True,
             shell=True,
-            cwd=os.getcwd(),
+            cwd=_getServerDir(),
         )
         logger.info("Virtual environment created successfully.")
 
-        pythonExec = os.path.join(
-            "venv",
-            "Scripts",
-            "python" + ".exe" if os.name == "nt" else "",
-        )
+        pythonExec = _getServerPythonExec()
 
         logger.info("Upgrading pip...")
         subprocess.run(
@@ -81,7 +91,7 @@ def createVirtualEnv(force: bool = False) -> None:
             ],
             check=True,
             shell=True,
-            cwd=os.getcwd(),
+            cwd=_getServerDir(),
         )
 
         logger.info("Installing required packages...")
@@ -96,7 +106,7 @@ def createVirtualEnv(force: bool = False) -> None:
             ],
             check=True,
             shell=True,
-            cwd=os.getcwd(),
+            cwd=_getServerDir(),
         )
         logger.info("Required packages installed successfully.")
     except Exception as e:
@@ -113,7 +123,7 @@ def installPackages(packages: list[str]) -> None:
         List of packages to install.
     """
 
-    pythonExec = _getPythonExec()
+    pythonExec = _getServerPythonExec()
 
     try:
         logger.info(f"Installing packages: {', '.join(packages)}")
@@ -127,7 +137,7 @@ def installPackages(packages: list[str]) -> None:
             + packages,
             check=True,
             shell=True,
-            cwd=os.getcwd(),
+            cwd=_getServerDir(),
         )
         logger.info("Packages installed successfully.")
 
@@ -143,7 +153,7 @@ def installPackages(packages: list[str]) -> None:
             ],
             check=True,
             shell=True,
-            cwd=os.getcwd(),
+            cwd=_getServerDir(),
         )
     except Exception as e:
         logger.error(f"Failed to install packages: {e}")
@@ -179,7 +189,7 @@ def main():
     createVirtualEnv()
 
     if args.command == "run":
-        pythonExec = _getPythonExec()
+        pythonExec = _getServerPythonExec()
         logger.info("Running the application...")
         subprocess.run(
             [
@@ -188,13 +198,13 @@ def main():
             ],
             check=True,
             shell=True,
-            cwd=os.getcwd(),
+            cwd=_getServerDir(),
         )
         logger.info("Application stopped.")
     elif args.command == "install":
         installPackages(args.packages)
     elif args.command == "test":
-        pytestExec = _getPytestExec()
+        pytestExec = _getServerPytestExec()
         logger.info("Running tests...")
         subprocess.run(
             [
@@ -203,7 +213,7 @@ def main():
             ],
             check=True,
             shell=True,
-            cwd=os.getcwd(),
+            cwd=_getServerDir(),
         )
         logger.info("Tests completed.")
 
