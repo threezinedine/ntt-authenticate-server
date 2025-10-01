@@ -8,4 +8,4 @@ def utils() -> Generator[Utils, None, None]:
     try:
         yield utils
     finally:
-        pass
+        utils.Cleanup()

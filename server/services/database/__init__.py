@@ -12,7 +12,7 @@ def GetDatabase() -> Generator[Database, None, None]:
         raise ValueError(f"Unsupported database type: {Env.DATABASE_TYPE}")
 
     try:
-        db.Connect(Env.GetURL())
+        db.Connect()
         yield db
     finally:
         db.Disconnect()
